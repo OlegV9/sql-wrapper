@@ -1,0 +1,17 @@
+{
+    "name": "semalt/db-wrapper",
+    "description": "MySQL wrapper",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Oleg V",
+            "email": "olegv@semalt.com"
+        }
+    ],
+    "require": {},
+	"autoload": {
+		"psr-4": {
+            "DBWrapper\\": ["src/"]
+        }
+	}
+}
