@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Util\MySQLi;
+namespace DBWrapper;
 
 class QueryResult implements \Iterator
 {

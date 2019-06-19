@@ -31,7 +31,7 @@ class Connection
 
     private static $conns = [];
 
-    public function __construct($host, $user, $pass, $db, $opts = [])
+    public function __construct($host, $user, $pass, $db = null, $opts = [])
 	{
 		$this->host = $host;
         $connKey = $db.'*'.$host;
