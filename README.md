@@ -2,7 +2,7 @@
 
 ```json
 {
-	"repositories": [
+    "repositories": [
         {
             "type": "git",
             "url": "git@git.semalt.com:libs/dbwrapper.git"
