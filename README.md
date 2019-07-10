@@ -1,3 +1,5 @@
+## Установка
+
 Чтобы подключить либу в свой проект, нужно прописать в composer.json
 
 ```json
@@ -16,3 +18,12 @@
 ```
 
 и потом сделать `composer update`
+
+## Использование
+
+```php
+use DBWrapper\Connection;
+
+$db = new Connection('host', 'user', 'pass', 'optional_database');
+$db->query('SELECT ...')->fetchAll();
+```
