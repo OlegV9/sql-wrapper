@@ -4,10 +4,10 @@ namespace DBWrapper;
 
 class Connection
 {
-    const FETCH_ASSOC = 'FETCH_ASSOC';
-    const FETCH_NUM = 'FETCH_NUM';
-    const FETCH_OBJ = 'FETCH_OBJ';
-    const ATTR_DEFAULT_FETCH_MODE = 'ATTR_DEFAULT_FETCH_MODE';
+	const FETCH_ASSOC = 'FETCH_ASSOC';
+	const FETCH_NUM = 'FETCH_NUM';
+	const FETCH_OBJ = 'FETCH_OBJ';
+	const ATTR_DEFAULT_FETCH_MODE = 'ATTR_DEFAULT_FETCH_MODE';
 	const ATTR_CAMEL_CASE = 'ATTR_CAMEL_CASE';
 
 	const FIELD_TINYINT = 1;
@@ -19,40 +19,40 @@ class Connection
 	const FIELD_DOUBLE = 5;
 	const FIELD_DECIMAL = 246;
 
-    private $conn;
+	private $conn;
 	private $connectError;
-    private $attrs = array();
-    private $lastQuery;
-    private $reseller = null;
-    private $host = null;
+	private $attrs = array();
+	private $lastQuery;
+	private $reseller = null;
+	private $host = null;
 
-    private $beforeQueryCallback = null;
-    private $afterQueryCallback = null;
+	private $beforeQueryCallback = null;
+	private $afterQueryCallback = null;
 
-    private static $conns = [];
+	private static $conns = [];
 
-    public function __construct($host, $user, $pass, $db = null, $opts = [])
+	public function __construct($host, $user, $pass, $db = null, $opts = [])
 	{
 		$this->host = $host;
-        $connKey = $db.'*'.$host;
-        if (isset(self::$conns[$connKey]) && empty($opts['forceNew'])) {
-            $this->conn = self::$conns[$connKey];
-        } else {
-            $this->conn = mysqli_connect($host, $user, $pass, $db);
+		$connKey = $db.'*'.$host;
+		if (isset(self::$conns[$connKey]) && empty($opts['forceNew'])) {
+			$this->conn = self::$conns[$connKey];
+		} else {
+			$this->conn = mysqli_connect($host, $user, $pass, $db);
 			$this->connectError = mysqli_connect_error();
 			if ($this->connectError) return;
 
 			self::$conns[$connKey] = $this->conn;
 			mysqli_query($this->conn, 'SET NAMES utf8');
-        }
-    }
+		}
+	}
 
-    public function query($query)
+	public function query($query)
 	{
-        $args = func_get_args();
-        if (count($args) > 1) {
-            $query = call_user_func_array(array($this, 'prepareQuery'), $args);
-        }
+		$args = func_get_args();
+		if (count($args) > 1) {
+			$query = call_user_func_array(array($this, 'prepareQuery'), $args);
+		}
 
 		if (is_callable($this->beforeQueryCallback)) {
 			$fn = $this->beforeQueryCallback;
@@ -62,10 +62,10 @@ class Connection
 			}
 		}
 
-        $this->lastQuery = $query;
+		$this->lastQuery = $query;
 
-        $start = microtime(true);
-        $res = mysqli_query($this->conn, $query);
+		$start = microtime(true);
+		$res = mysqli_query($this->conn, $query);
 		$end = microtime(true);
 
 		$time = $end - $start;
@@ -75,8 +75,8 @@ class Connection
 			$fn($this, $res, $time);
 		}
 
-        return new QueryResult($this->conn, $res, $this->attrs);
-    }
+		return new QueryResult($this->conn, $res, $this->attrs);
+	}
 
 	public function onBeforeQuery($fn)
 	{
@@ -88,15 +88,15 @@ class Connection
 		$this->afterQueryCallback = $fn;
 	}
 
-    public function exec($query)
+	public function exec($query)
 	{
-        return $this->query($query);
-    }
+		return $this->query($query);
+	}
 
-    public function quote($raw)
+	public function quote($raw)
 	{
-        return "'".mysqli_real_escape_string($this->conn, $raw)."'";
-    }
+		return "'".mysqli_real_escape_string($this->conn, $raw)."'";
+	}
 
 	public function quoteArray($array)
 	{
@@ -107,29 +107,29 @@ class Connection
 		return $newArray;
 	}
 
-    public function escape($raw)
+	public function escape($raw)
 	{
-        return mysqli_real_escape_string($this->conn, $raw);
-    }
+		return mysqli_real_escape_string($this->conn, $raw);
+	}
 
 	public function escapeWord($raw)
 	{
 		$param = preg_replace('~[^a-zA-Z0-9_.-]~', '', $raw);
 		$param = '`'.$param.'`';
-        return $param;
-    }
+		return $param;
+	}
 
-    public function affectedRows()
+	public function affectedRows()
 	{
-        return mysqli_affected_rows($this->conn);
-    }
+		return mysqli_affected_rows($this->conn);
+	}
 
-    public function escapeLike($raw)
+	public function escapeLike($raw)
 	{
-        $param = mysqli_real_escape_string($this->conn, $raw);
-        $param = str_replace(array('_', '%'), array('\_', '\%'), $param);
-        return $param;
-    }
+		$param = mysqli_real_escape_string($this->conn, $raw);
+		$param = str_replace(array('_', '%'), array('\_', '\%'), $param);
+		return $param;
+	}
 
 	/* alias to lastInsertId */
 	public function insertId()
@@ -137,12 +137,12 @@ class Connection
 		return $this->lastInsertId();
 	}
 
-    public function lastInsertId()
+	public function lastInsertId()
 	{
-        return mysqli_insert_id($this->conn);
-    }
+		return mysqli_insert_id($this->conn);
+	}
 
-    public function startTransaction()
+	public function startTransaction()
 	{
 		$this->query('START TRANSACTION');
 	}
@@ -167,59 +167,59 @@ class Connection
 		return mysqli_ping($this->conn);
 	}
 
-    public function setAttribute($key, $value)
+	public function setAttribute($key, $value)
 	{
-        $this->attrs[$key] = $value;
-    }
+		$this->attrs[$key] = $value;
+	}
 
-    public function getAttribute($key)
+	public function getAttribute($key)
 	{
-        if (!isset($this->attrs[$key])) return null;
-        return $this->attrs[$key];
-    }
+		if (!isset($this->attrs[$key])) return null;
+		return $this->attrs[$key];
+	}
 
-    public function getLastError()
+	public function getLastError()
 	{
-        return mysqli_error($this->conn);
-    }
+		return mysqli_error($this->conn);
+	}
 
 	/* alias to getLastError */
 	public function error()
 	{
-        return $this->getLastError();
-    }
+		return $this->getLastError();
+	}
 
-    public function getLastQuery()
+	public function getLastQuery()
 	{
-        return $this->lastQuery;
-    }
+		return $this->lastQuery;
+	}
 
-    /* alias to getLastQuery */
-    public function lastQuery()
+	/* alias to getLastQuery */
+	public function lastQuery()
 	{
-        return $this->getLastQuery();
-    }
+		return $this->getLastQuery();
+	}
 
 	public function close()
 	{
 		return mysqli_close($this->conn);
 	}
 
-    public function prepareQuery()
+	public function prepareQuery()
 	{
-        $args = func_get_args();
+		$args = func_get_args();
 		$rawQuery = $args[0];
 
 		if (count($args) <= 1) return $rawQuery;
 
-        if (is_array($args[1])) {
-            $params = $args[1];
-        } else {
-            $params = array_slice($args, 1);
-        }
-        $curIndex = 0;
-        $query = preg_replace_callback('/:[ifslw]\??/', function($m) use($params, &$curIndex) {
-            $placeholder = $m[0];
+		if (is_array($args[1])) {
+			$params = $args[1];
+		} else {
+			$params = array_slice($args, 1);
+		}
+		$curIndex = 0;
+		$query = preg_replace_callback('/:[ifslw]\??/', function($m) use($params, &$curIndex) {
+			$placeholder = $m[0];
 			if (strpos($placeholder, '?') !== false) {
 				$placeholder = rtrim($placeholder, '?');
 				$nullable = true;
@@ -227,24 +227,24 @@ class Connection
 				$nullable = false;
 			}
 
-            if (!isset($params[$curIndex])) {
+			if (!isset($params[$curIndex])) {
 				$curIndex++;
 				if ($nullable) return 'NULL';
 				return $placeholder;
 			}
 
 			$param = $params[$curIndex++];
-            switch ($placeholder) {
-                case ':i': return intval($param);
-                case ':f': return floatval($param);
-                case ':s': return $this->quote($param);
-                case ':l': return $this->escapeLike($param);
+			switch ($placeholder) {
+				case ':i': return intval($param);
+				case ':f': return floatval($param);
+				case ':s': return $this->quote($param);
+				case ':l': return $this->escapeLike($param);
 				case ':w': return $this->escapeWord($param);
-            }
-        }, $rawQuery);
+			}
+		}, $rawQuery);
 
-        return $query;
-    }
+		return $query;
+	}
 
 	public function checkTableExists($tbl, $database = null)
 	{

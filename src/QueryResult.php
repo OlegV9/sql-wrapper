@@ -5,12 +5,12 @@ namespace DBWrapper;
 class QueryResult implements \Iterator
 {
 	private $caller;
-    private $conn;
-    private $res;
-    private $attrs;
-    private $position = -1;
-    private $currentRow;
-	
+	private $conn;
+	private $res;
+	private $attrs;
+	private $position = -1;
+	private $currentRow;
+
 	private static $intTypes = [
 		Connection::FIELD_TINYINT,
 		Connection::FIELD_SMALLINT,
@@ -18,134 +18,133 @@ class QueryResult implements \Iterator
 		Connection::FIELD_INTEGER,
 		Connection::FIELD_BIGINT
 	];
-	
+
 	private static $floatTypes = [
 		Connection::FIELD_FLOAT,
 		Connection::FIELD_DOUBLE,
 		Connection::FIELD_DECIMAL
 	];
 
-    public function __construct($conn, $res, $attrs = [], $caller = null)
+	public function __construct($conn, $res, $attrs = [], $caller = null)
 	{
-        $this->conn = $conn;
-        $this->res = $res;
-        $this->attrs = $attrs;
-        $this->caller = $caller;
-    }
+		$this->conn = $conn;
+		$this->res = $res;
+		$this->attrs = $attrs;
+		$this->caller = $caller;
+	}
 
-    public function fetchColumn($colIndex = 0)
+	public function fetchColumn($col = 0)
 	{
-        if (!$this->res || mysqli_num_rows($this->res) < 1) return null;
-        return mysqli_fetch_row($this->res)[$colIndex];
-    }
+		if (!$this->res || mysqli_num_rows($this->res) < 1) return null;
 
-    public function fetch($mode = null)
+		$mode = is_int($col) ? Connection::FETCH_NUM : Connection::FETCH_ASSOC;
+		$arr = [];
+		$row = $this->fetch($mode);
+		return $row[$col];
+	}
+
+	public function fetch($mode = null)
 	{
-        if ($this->res === false) return null;
+		if ($this->res === false) return null;
 
-        $mode = $this->transformMode($mode);
+		$mode = $this->transformMode($mode);
 
-        $this->position++;
-        $row = mysqli_fetch_assoc($this->res);
-        $this->currentRow = !empty($row) ? $this->transformRow($row, $mode) : false;
-        return $this->currentRow;
-    }
+		$this->position++;
+		$row = mysqli_fetch_assoc($this->res);
+		$this->currentRow = !empty($row) ? $this->transformRow($row, $mode) : false;
+		return $this->currentRow;
+	}
 
-    public function fetchObject()
+	public function fetchObject()
 	{
-        return $this->fetch(Connection::FETCH_OBJ);
-    }
+		return $this->fetch(Connection::FETCH_OBJ);
+	}
 
-    public function fetchAssoc()
+	public function fetchAssoc()
 	{
-        return $this->fetch(Connection::FETCH_ASSOC);
-    }
+		return $this->fetch(Connection::FETCH_ASSOC);
+	}
 
-    public function fetchNum()
+	public function fetchNum()
 	{
-        return $this->fetch(Connection::FETCH_NUM);
-    }
+		return $this->fetch(Connection::FETCH_NUM);
+	}
 
-    public function fetchAll($mode = null)
+	public function fetchAll($mode = null)
 	{
-        if ($this->res === false) return null;
+		if ($this->res === false) return null;
 
-        $mode = $this->transformMode($mode);
+		$mode = $this->transformMode($mode);
 
-        $rows = array();
-        while ($row = mysqli_fetch_assoc($this->res))
+		$rows = array();
+		while ($row = mysqli_fetch_assoc($this->res))
 		{
-            $rows[] = $this->transformRow($row, $mode);
-        }
-        return $rows;
-    }
+			$rows[] = $this->transformRow($row, $mode);
+		}
+		return $rows;
+	}
 
-    public function fetchAllCol($col = 0)
+	public function fetchAllCol($col = 0)
 	{
-        if ($this->res === false) return null;
+		if ($this->res === false) return null;
 
-        $arr = array();
-        if (is_int($col)) {
-            while ($row = mysqli_fetch_row($this->res)) {
-                $arr[] = $row[$col];
-            }
-        } else {
-            while ($row = mysqli_fetch_assoc($this->res)) {
-                $arr[] = $row[$col];
-            }
-        }
+		$mode = is_int($col) ? Connection::FETCH_NUM : Connection::FETCH_ASSOC;
+		$arr = [];
+		foreach ($this->fetchAll($mode) as $row) {
+			$arr[] = $row[$col];
+		}
 
-        return $arr;
-    }
+		return $arr;
+	}
 
-    public function rowCount()
+	public function rowCount()
 	{
-        if ($this->res === false) return null;
-        if ($this->res === true) return mysqli_affected_rows($this->conn);
-        return mysqli_num_rows($this->res);
-    }
-	
+		if ($this->res === false) return null;
+		if ($this->res === true) return mysqli_affected_rows($this->conn);
+		return mysqli_num_rows($this->res);
+	}
+
 	public function id()
 	{
 		return mysqli_insert_id($this->conn);
 	}
-	
+
 	public function error()
 	{
 		return mysqli_error($this->conn);
 	}
 
-    public function rewind()
+	public function rewind()
 	{
-        $this->position = -1;
-        $this->next();
-    }
+		$this->position = -1;
+		$this->next();
+	}
 
-    public function current()
+	public function current()
 	{
-        return $this->currentRow;
-    }
+		return $this->currentRow;
+	}
 
-    public function key()
+	public function key()
 	{
-        return $this->position;
-    }
+		return $this->position;
+	}
 
-    public function next()
+	public function next()
 	{
-        $this->currentRow = $this->fetch();
-    }
+		$this->currentRow = $this->fetch();
+	}
 
-    public function valid()
+	public function valid()
 	{
-        return !empty($this->currentRow);
-    }
+		return !empty($this->currentRow);
+	}
 
-    public function lastQuery()
+	public function lastQuery()
 	{
 		return $this->caller->getLastQuery();
 	}
-	
+
 	private function camelize($raw)
 	{
 		return preg_replace_callback('~_([a-zA-Z])~', function($match) {
@@ -153,7 +152,7 @@ class QueryResult implements \Iterator
 		}, trim($raw, '_'));
 	}
 
-    private function transformRow($row, $mode)
+	private function transformRow($row, $mode)
 	{
 		$fields = mysqli_fetch_fields($this->res);
 
@@ -180,22 +179,22 @@ class QueryResult implements \Iterator
 		$row = $newRow;
 		unset($newRow);
 
-        switch ($mode) {
-            case Connection::FETCH_ASSOC:	return $row;
-            case Connection::FETCH_OBJ:		return (object)$row;
-            case Connection::FETCH_NUM:		return array_values($row);
-        }
-        return null;
-    }
+		switch ($mode) {
+			case Connection::FETCH_ASSOC:	return $row;
+			case Connection::FETCH_OBJ:		return (object)$row;
+			case Connection::FETCH_NUM:		return array_values($row);
+		}
+		return null;
+	}
 
-    private function transformMode($mode)
+	private function transformMode($mode)
 	{
-        if ($mode !== null) {
-            return $mode;
-        }
-        if (isset($this->attrs[Connection::ATTR_DEFAULT_FETCH_MODE])) {
-            return $this->attrs[Connection::ATTR_DEFAULT_FETCH_MODE];
-        }
-        return Connection::FETCH_OBJ;
-    }
+		if ($mode !== null) {
+			return $mode;
+		}
+		if (isset($this->attrs[Connection::ATTR_DEFAULT_FETCH_MODE])) {
+			return $this->attrs[Connection::ATTR_DEFAULT_FETCH_MODE];
+		}
+		return Connection::FETCH_OBJ;
+	}
 }
