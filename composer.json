@@ -8,7 +8,6 @@
             "email": "olegv@semalt.com"
         }
     ],
-    "require": {},
 	"autoload": {
 		"psr-4": {
             "DBWrapper\\": ["src/"]
