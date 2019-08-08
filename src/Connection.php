@@ -4,6 +4,8 @@ namespace DBWrapper;
 
 class Connection
 {
+	const VERSION = 1.0;
+
 	const FETCH_ASSOC = 'FETCH_ASSOC';
 	const FETCH_NUM = 'FETCH_NUM';
 	const FETCH_OBJ = 'FETCH_OBJ';
@@ -45,6 +47,10 @@ class Connection
 			self::$conns[$connKey] = $this->conn;
 			mysqli_query($this->conn, 'SET NAMES utf8');
 		}
+	}
+
+	public function getVersion() {
+		return self::VERSION;
 	}
 
 	public function query($query)
