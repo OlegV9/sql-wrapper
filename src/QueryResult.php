@@ -10,7 +10,7 @@ class QueryResult implements \Iterator
 	private $attrs;
 	private $position = -1;
 	private $currentRow;
-
+	
 	private static $intTypes = [
 		Connection::FIELD_TINYINT,
 		Connection::FIELD_SMALLINT,

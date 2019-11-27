@@ -4,7 +4,7 @@ namespace DBWrapper;
 
 class Connection
 {
-	const VERSION = 1.0;
+	const VERSION = '1.1.2';
 
 	const FETCH_ASSOC = 'FETCH_ASSOC';
 	const FETCH_NUM = 'FETCH_NUM';
