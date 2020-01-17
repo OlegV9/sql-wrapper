@@ -4,7 +4,7 @@ namespace DBWrapper;
 
 class Connection
 {
-	const VERSION = '1.1.2';
+	const VERSION = '1.2';
 
 	const FETCH_ASSOC = 'FETCH_ASSOC';
 	const FETCH_NUM = 'FETCH_NUM';
@@ -36,7 +36,7 @@ class Connection
 	public function __construct($host, $user, $pass, $db = null, $opts = [])
 	{
 		$this->host = $host;
-		$connKey = $db.'*'.$host;
+		$connKey = $db.'*'.$host.'*'.$user;
 		if (isset(self::$conns[$connKey]) && empty($opts['forceNew'])) {
 			$this->conn = self::$conns[$connKey];
 		} else {
