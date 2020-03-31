@@ -10,7 +10,7 @@ class QueryResult implements \Iterator
 	private $attrs;
 	private $position = -1;
 	private $currentRow;
-	
+
 	private static $intTypes = [
 		Connection::FIELD_TINYINT,
 		Connection::FIELD_SMALLINT,
@@ -80,6 +80,18 @@ class QueryResult implements \Iterator
 		while ($row = mysqli_fetch_assoc($this->res))
 		{
 			$rows[] = $this->transformRow($row, $mode);
+		}
+		return $rows;
+	}
+
+	public function fetchRawArray()
+	{
+		if ($this->res === false) return null;
+
+		$rows = array();
+		while ($row = mysqli_fetch_assoc($this->res))
+		{
+			$rows[] = $row;
 		}
 		return $rows;
 	}
