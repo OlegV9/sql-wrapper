@@ -17,7 +17,7 @@
 
 ```
 
-и потом сделать `composer update`
+и потом сделать `composer update semalt/db-wrapper`
 
 ## Использование
 
